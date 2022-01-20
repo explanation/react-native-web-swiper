@@ -7,9 +7,8 @@ import DefaultControls from './Controls';
 const useNativeDriver = false; // because of RN #13377
 
 class Swiper extends React.Component {
-  componentDidMount() { }
-
-  componentDidUpdate(prevProps, prevState, snapshot) { }
+  children = (() => React.Children.toArray(this.props.children))();
+  count = (() => this.children.length)();
 
   startAutoplay() {
     const { timeout } = this.props;
@@ -186,8 +185,8 @@ class Swiper extends React.Component {
 
     if (activeIndex <= 0 && delta < 0) {
       skipChanges = !loop;
-      calcDelta = React.Children.toArray(this.props.children) + delta;
-    } else if (activeIndex + 1 >= React.Children.toArray(this.props.children) && delta > 0) {
+      calcDelta = this.count + delta;
+    } else if (activeIndex + 1 >= this.count && delta > 0) {
       skipChanges = !loop;
       calcDelta = -1 * activeIndex + delta - 1;
     }
@@ -250,7 +249,7 @@ class Swiper extends React.Component {
         >
           <Animated.View
             style={StyleSheet.flatten([
-              styles.swipeArea(vertical, React.Children.toArray(this.props.children), width, height),
+              styles.swipeArea(vertical, this.count, width, height),
               swipeAreaStyle,
               {
                 transform: [{ translateX: pan.x }, { translateY: pan.y }],
@@ -258,7 +257,7 @@ class Swiper extends React.Component {
             ])}
             {...this._panResponder.panHandlers}
           >
-            {React.Children.toArray(this.props.children).map((el, i) => (
+            {this.children.map((el, i) => (
               <View
                 key={i}
                 style={StyleSheet.flatten([
@@ -275,10 +274,10 @@ class Swiper extends React.Component {
               {...controlsProps}
               theme={theme}
               vertical={vertical}
-              count={React.Children.toArray(this.props.children).length}
+              count={this.count}
               activeIndex={this.getActiveIndex()}
               isFirst={!loop && !this.getActiveIndex()}
-              isLast={!loop && this.getActiveIndex() + 1 >= React.Children.toArray(this.props.children)}
+              isLast={!loop && this.getActiveIndex() + 1 >= this.count}
               goToPrev={this.goToPrev}
               goToNext={this.goToNext}
               goTo={this.goTo}
